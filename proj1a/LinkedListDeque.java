@@ -20,7 +20,7 @@ public class LinkedListDeque<T> {
         sentinel.next = sentinel;
         size = 0;
     }
-
+/*
     public LinkedListDeque(T x) {
         sentinel = new StuffNode(null, null, null);
         sentinel.next = new StuffNode(sentinel, x, sentinel);
@@ -28,6 +28,8 @@ public class LinkedListDeque<T> {
         size = 1;
     }
 
+ */
+/*
     public LinkedListDeque(LinkedListDeque other) {
         sentinel = new StuffNode(null, null, null);
         sentinel.prev = sentinel;
@@ -39,7 +41,7 @@ public class LinkedListDeque<T> {
             p = p.next;
         }
     }
-
+*/
     public void addFirst(T item) {
         sentinel.next = new StuffNode(sentinel, item, sentinel.next);
         sentinel.next.next.prev = sentinel.next;
@@ -75,7 +77,7 @@ public class LinkedListDeque<T> {
     }
 
     public T removeFirst() {
-        if (sentinel.next == null) {
+        if (sentinel.next == sentinel) {
             return null;
         } else {
             T content = sentinel.next.item;
@@ -87,7 +89,7 @@ public class LinkedListDeque<T> {
     }
 
     public T removeLast() {
-        if (sentinel.next == null) {
+        if (sentinel.next == sentinel) {
             return null;
         } else {
             T content = sentinel.prev.item;
@@ -103,6 +105,7 @@ public class LinkedListDeque<T> {
         StuffNode p = sentinel.next;
         while (position < index) {
             p = p.next;
+            position += 1;
         }
         return p.item;
     }

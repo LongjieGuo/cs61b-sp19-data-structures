@@ -21,7 +21,7 @@ public class ArrayDeque<T> {
     public int size() {
         return size;
     }
-
+/*
     public ArrayDeque(ArrayDeque other) {
         items = (T []) new Object[8];
         size = 0;
@@ -30,7 +30,7 @@ public class ArrayDeque<T> {
         for (int i = 0; i < other.size(); i++) {
             addLast((T) other.get(i));
         }
-    }
+    }*/
 
     private void resize(int cap) {
         T[] newList = (T []) new Object[cap];
@@ -61,6 +61,9 @@ public class ArrayDeque<T> {
     }
 
     public T removeFirst() {
+        if (size == 0) {
+            return null;
+        }
         T removed = items[plusOne(nextFirst)];
         nextFirst = plusOne(nextFirst);
         size -= 1;
@@ -71,6 +74,9 @@ public class ArrayDeque<T> {
     }
 
     public T removeLast() {
+        if (size == 0) {
+            return null;
+        }
         T removed = items[minusOne(nextLast)];
         nextLast = minusOne(nextLast);
         size -= 1;
