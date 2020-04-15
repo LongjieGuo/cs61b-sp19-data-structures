@@ -1,8 +1,6 @@
 package hw2;
 
 import edu.princeton.cs.algs4.WeightedQuickUnionUF;
-import java.lang.IndexOutOfBoundsException;
-import java.lang.IllegalArgumentException;
 
 public class Percolation {
     private boolean[][] grid;
@@ -41,7 +39,8 @@ public class Percolation {
             if (row == 0) {
                 u.union(gridN * gridN, xyTo1D(row, col));
                 u2.union(gridN * gridN, xyTo1D(row, col));
-            } else if (row == gridN - 1) {
+            }
+            if (row == gridN - 1) {
                 u.union(gridN * gridN + 1, xyTo1D(row, col));
             }
             // connect with surrounding blocks

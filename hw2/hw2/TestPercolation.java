@@ -46,7 +46,7 @@ public class TestPercolation {
     @Test
     public void testPercolationStat() {
         PercolationFactory pf = new PercolationFactory();
-        PercolationStats ps = new PercolationStats(20, 100000, pf);
+        PercolationStats ps = new PercolationStats(20, 100, pf);
         System.out.println(ps.mean());
         System.out.println(ps.stddev());
         System.out.println(ps.confidenceLow());
