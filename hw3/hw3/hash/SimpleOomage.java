@@ -14,7 +14,6 @@ public class SimpleOomage implements Oomage {
 
     @Override
     public boolean equals(Object o) {
-        // TODO: Write this method.
         if (this == o) {
             return true;
         } else if (o == null) {
@@ -34,7 +33,6 @@ public class SimpleOomage implements Oomage {
         if (!USE_PERFECT_HASH) {
             return red + green + blue;
         } else {
-            // TODO: Write a perfect hash function for Simple Oomages.
             return red * 255 * 255 + green * 255 + blue;
         }
     }
