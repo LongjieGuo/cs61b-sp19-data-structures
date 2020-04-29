@@ -18,6 +18,7 @@ public class TestMyHashMap {
         }
     }
 
+
     //assumes put/size/containsKey/get work
     @Test
     public void sanityClearTest() {
@@ -56,6 +57,7 @@ public class TestMyHashMap {
         assertNotEquals(null, b.get("starChild"));
     }
 
+
     // assumes put works
     @Test
     public void sanitySizeTest() {
@@ -80,6 +82,8 @@ public class TestMyHashMap {
     /* 
     * Sanity test for keySet
     */
+
+
     @Test
     public void sanityKeySetTest() {
         MyHashMap<String, Integer> b = new MyHashMap<String, Integer>();
