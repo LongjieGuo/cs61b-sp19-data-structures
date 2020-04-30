@@ -169,15 +169,68 @@ public class MyHashMap<K, V> implements Map61B<K, V> {
     @Override
     public Set<K> keySet() {
         /** Returns a Set view of the keys contained in this map. */
+        /*
         return keySet;
+         */
+        HashSet<K> keys = new HashSet<>();
+        for (Item i : buckets) {
+            Item p = i.next;
+            while (p != null) {
+                keys.add((K) p.key);
+                p = p.next;
+            }
+        }
+        return keys;
     }
 
     @Override
     public Iterator<K> iterator() {
+        /*
         return keySet.iterator();
+         */
+        return new MyHashMapIterator<>();
     }
 
+    private class MyHashMapIterator<K> implements Iterator<K> {
+        private int i;
+        private Item it;
 
+        public MyHashMapIterator() {
+            i = 0;
+            it = buckets[i];
+        }
+
+        @Override
+        public boolean hasNext() {
+            int j = i;
+            Item it2 = it;
+            while (j < buckets.length) {
+                if (it2.next != null) {
+                    return true;
+                }
+                j += 1;
+                if (j != buckets.length) {
+                    it2 = buckets[j];
+                }
+            }
+            return false;
+        }
+
+        @Override
+        public K next() {
+            while (i < buckets.length) {
+                if (it.next != null) {
+                    it = it.next;
+                    return (K) it.key;
+                }
+                i += 1;
+                if (i != buckets.length) {
+                    it = buckets[i];
+                }
+            }
+            throw new NoSuchElementException();
+        }
+    }
 
     @Override
     public V remove(K key) {
@@ -186,7 +239,48 @@ public class MyHashMap<K, V> implements Map61B<K, V> {
          * the specified value. Not required for Lab 8. If you don't implement this,
          * throw an UnsupportedOperationException.
          */
-        throw new UnsupportedOperationException();
+        if (key == null) {
+            throw new IllegalArgumentException();
+        }
+        if (!containsKey(key)) {
+            return null;
+        }
+        if ((size * 1.0 / bucketNum) < loadFactor) {
+            resizeDown();
+        }
+        Item i = buckets[hash(key)];
+        while (!key.equals(i.next.key)) {
+            i = i.next;
+        }
+        V returnVal = (V) i.next.value;
+        i.next = i.next.next;
+        size -= 1;
+        keySet.remove(key);
+        return returnVal;
+    }
+
+    private void resizeDown() {
+        Item[] newBuckets = new Item[bucketNum / 2];
+        bucketNum /= 2;
+        for (int i = 0; i < newBuckets.length; i++) {
+            Item f = new Item();
+            newBuckets[i] = f;
+        }
+        for (Item i : buckets) {
+            Item p = i.next;
+            while (p != null) {
+                K key = (K) p.key;
+                V value = (V) p.value;
+                Item it = newBuckets[hash(key)];
+                while (it.next != null) {
+                    it = it.next;
+                }
+                Item newItem = new Item(key, value, null);
+                it.next = newItem;
+                p = p.next;
+            }
+        }
+        buckets = newBuckets;
     }
 
     @Override
@@ -196,6 +290,6 @@ public class MyHashMap<K, V> implements Map61B<K, V> {
          * the specified value. Not required for Lab 8. If you don't implement this,
          * throw an UnsupportedOperationException.
          */
-        throw new UnsupportedOperationException();
+        return remove(key);
     }
 }
