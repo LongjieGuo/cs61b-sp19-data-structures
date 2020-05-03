@@ -12,7 +12,7 @@ public class ArrayHeapMinPQ<T> implements ExtrinsicMinPQ<T> {
         private T item;
         private double priority;
 
-        public PriorityNode(T item, double priority) {
+        PriorityNode(T item, double priority) {
             this.item = item;
             this.priority = priority;
         }
