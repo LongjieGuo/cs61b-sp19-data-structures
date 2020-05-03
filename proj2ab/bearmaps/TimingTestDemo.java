@@ -20,8 +20,8 @@ public class TimingTestDemo {
         System.out.println("Total time elapsed: " + (end - start)/1000.0 +  " seconds.");
 
         Stopwatch sw = new Stopwatch();
-        for (int i = 0; i < 100000; i += 1) {
-            for (int j = 0; j < 10000; j += 1) {
+        for (int i = 0; i < 1000000; i += 1) {
+            for (int j = 0; j < 100000; j += 1) {
                 sum = sum + i + j;
             }
         }
