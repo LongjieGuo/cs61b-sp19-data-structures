@@ -15,8 +15,8 @@ public class TestSortAlgs {
         q.enqueue(3);
         q.enqueue(2);
         q.enqueue(1);
-        QuickSort.quickSort(q);
-        Iterator<Integer> iter = q.iterator();
+        Queue<Integer> sorted = QuickSort.quickSort(q);
+        Iterator<Integer> iter = sorted.iterator();
         int prev = iter.next();
         int current;
         while (iter.hasNext()) {
@@ -34,8 +34,8 @@ public class TestSortAlgs {
         q.enqueue(3);
         q.enqueue(2);
         q.enqueue(1);
-        MergeSort.mergeSort(q);
-        Iterator<Integer> iter = q.iterator();
+        Queue<Integer> sorted = MergeSort.mergeSort(q);
+        Iterator<Integer> iter = sorted.iterator();
         int prev = iter.next();
         int current;
         while (iter.hasNext()) {
