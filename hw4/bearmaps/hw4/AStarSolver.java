@@ -24,7 +24,6 @@ public class AStarSolver<Vertex> implements ShortestPathsSolver<Vertex> {
         edgeTo = new HashMap<>();
         numStatesExplored = 0;
         distTo.put(start, 0.0);
-        initializeDistTo(input, start);
         pq.add(start, 0 + input.estimatedDistanceToGoal(start, end));
         sw = new Stopwatch();
         while (true) {
@@ -43,6 +42,9 @@ public class AStarSolver<Vertex> implements ShortestPathsSolver<Vertex> {
                 Vertex p = e.from();
                 Vertex q = e.to();
                 double w = e.weight();
+                if (!distTo.containsKey(q)) {
+                    distTo.put(q, Double.MAX_VALUE);
+                }
                 if (distTo.get(p) + w < distTo.get(q)) {
                     distTo.replace(q, distTo.get(p) + w);
                     edgeTo.put(q, p);
@@ -67,15 +69,6 @@ public class AStarSolver<Vertex> implements ShortestPathsSolver<Vertex> {
             solution.add(start);
             Collections.reverse(solution);
             solutionWeight = distTo.get(end);
-        }
-    }
-
-    private void initializeDistTo(AStarGraph<Vertex> input, Vertex start) {
-        for (WeightedEdge<Vertex> e : input.neighbors(start)) {
-            if (!distTo.containsKey(e.to())) {
-                distTo.put(e.to(), Double.MAX_VALUE);
-                initializeDistTo(input, e.to());
-            }
         }
     }
 
@@ -104,6 +97,6 @@ public class AStarSolver<Vertex> implements ShortestPathsSolver<Vertex> {
 
     @Override
     public double explorationTime() {
-        return sw.elapsedTime() / 1000;
+        return sw.elapsedTime();
     }
 }
