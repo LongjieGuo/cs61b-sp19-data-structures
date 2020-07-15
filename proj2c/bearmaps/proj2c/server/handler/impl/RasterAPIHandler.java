@@ -17,8 +17,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static bearmaps.proj2c.utils.Constants.SEMANTIC_STREET_GRAPH;
-import static bearmaps.proj2c.utils.Constants.ROUTE_LIST;
+import static bearmaps.proj2c.utils.Constants.*;
+import static java.lang.Math.PI;
+import static java.lang.Math.pow;
 
 /**
  * Handles requests from the web browser for map images. These images
@@ -84,11 +85,83 @@ public class RasterAPIHandler extends APIRouteHandler<Map<String, Double>, Map<S
      */
     @Override
     public Map<String, Object> processRequest(Map<String, Double> requestParams, Response response) {
-        //System.out.println("yo, wanna know the parameters given by the web browser? They are:");
-        //System.out.println(requestParams);
+        System.out.println("parameters:");
+        System.out.println(requestParams);
         Map<String, Object> results = new HashMap<>();
-        System.out.println("Since you haven't implemented RasterAPIHandler.processRequest, nothing is displayed in "
-                + "your browser.");
+        // calculate depth
+        double ullon = requestParams.get("ullon"), ullat = requestParams.get("ullat");
+        double lrlon = requestParams.get("lrlon"), lrlat = requestParams.get("lrlat");
+        double requestedLonDPP = (lrlon - ullon) / requestParams.get("w");
+        double nowLonDPP = (ROOT_LRLON - ROOT_ULLON) / TILE_SIZE;
+        int depth;
+        for (depth = 0; depth < 7; depth++, nowLonDPP /= 2) {
+            if (nowLonDPP <= requestedLonDPP) {
+                break;
+            }
+        }
+        boolean query_success = true;
+        double raster_ul_lon = 0, raster_ul_lat = 0, raster_lr_lon = 0, raster_lr_lat = 0;
+        String[][] render_grid = null;
+        double distanceX = (ROOT_LRLON - ROOT_ULLON) / pow(2, depth);
+        double distanceY = (ROOT_ULLAT - ROOT_LRLAT) / pow(2, depth); // positive number
+        // corner cases: no coverage
+        if (lrlon <= ROOT_ULLON || lrlat >= ROOT_ULLAT || ullon >= lrlon || ullat < lrlat) {
+            query_success = false;
+        } else {
+            int leftIndex = 0, rightIndex = 0, upIndex = 0, bottomIndex = 0;
+            double deltaXL = ullon - ROOT_ULLON;
+            if (deltaXL >= 0) {
+                leftIndex = (int) Math.floor(deltaXL / distanceX);
+            } else {
+                leftIndex = 0;
+            }
+            raster_ul_lon = ROOT_ULLON + leftIndex * distanceX;
+            System.out.println("L" + leftIndex);
+            double deltaXR = lrlon - ROOT_ULLON;
+            rightIndex = (int) Math.floor(deltaXR / distanceX);
+            if (rightIndex >= pow(2, depth)) {
+                rightIndex = (int) (pow(2, depth) - 1);
+            }
+            raster_lr_lon = ROOT_ULLON + (rightIndex + 1) * distanceX;
+            System.out.println("R" + rightIndex);
+            double deltaYU = ROOT_ULLAT - ullat;
+            if (deltaYU >= 0) {
+                upIndex = (int) Math.floor(deltaYU / distanceY);
+            } else {
+                upIndex = 0;
+            }
+            raster_ul_lat = ROOT_ULLAT - upIndex * distanceY;
+            System.out.println("U" + upIndex);
+            double deltaYL = ROOT_ULLAT - lrlat;
+            bottomIndex = (int) Math.floor(deltaYL / distanceY);
+            if (bottomIndex >= pow(2, depth)) {
+                bottomIndex = (int) (pow(2, depth) - 1);
+            }
+            raster_lr_lat = ROOT_ULLAT - (bottomIndex + 1) * distanceY;
+            System.out.println("B" + bottomIndex);
+            int width = rightIndex - leftIndex + 1;
+            int height = bottomIndex - upIndex + 1;
+            render_grid = new String[height][width];
+            int l = leftIndex;
+            int u = upIndex;
+            for (int i = 0; i < height; i++) {
+                for (int j = 0; j < width; j++) {
+                    String s = "d" + depth + "_x" + l + "_y" + u + ".png";
+                    render_grid[i][j] = s;
+                    System.out.println(s);
+                    l += 1;
+                }
+                l = leftIndex;
+                u += 1;
+            }
+        }
+        results.put("render_grid", render_grid);
+        results.put("raster_ul_lon", raster_ul_lon);
+        results.put("raster_ul_lat", raster_ul_lat);
+        results.put("raster_lr_lon", raster_lr_lon);
+        results.put("raster_lr_lat", raster_lr_lat);
+        results.put("depth", depth);
+        results.put("query_success", query_success);
         return results;
     }
 
