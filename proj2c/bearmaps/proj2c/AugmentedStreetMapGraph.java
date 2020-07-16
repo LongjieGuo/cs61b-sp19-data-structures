@@ -3,6 +3,7 @@ package bearmaps.proj2c;
 import bearmaps.hw4.streetmap.Node;
 import bearmaps.hw4.streetmap.StreetMapGraph;
 import bearmaps.proj2ab.Point;
+import bearmaps.proj2ab.WeirdPointSet;
 
 import java.util.*;
 
@@ -14,11 +15,21 @@ import java.util.*;
  * @author Alan Yao, Josh Hug, ________
  */
 public class AugmentedStreetMapGraph extends StreetMapGraph {
+    List<Point> points;
+    HashMap<Point, Node> map;
 
     public AugmentedStreetMapGraph(String dbPath) {
         super(dbPath);
-        // You might find it helpful to uncomment the line below:
-        // List<Node> nodes = this.getNodes();
+        List<Node> nodes = this.getNodes();
+        points = new ArrayList<>();
+        map = new HashMap<>();
+        for (Node n : nodes) {
+            if (neighbors(n.id()).size() > 0) {
+                Point newPoint = new Point(n.lon(), n.lat());
+                points.add(newPoint);
+                map.put(newPoint, n);
+            }
+        }
     }
 
 
@@ -30,14 +41,16 @@ public class AugmentedStreetMapGraph extends StreetMapGraph {
      * @return The id of the node in the graph closest to the target.
      */
     public long closest(double lon, double lat) {
-        return 0;
+        WeirdPointSet kdtree = new WeirdPointSet(points);
+        Point result = kdtree.nearest(lon, lat);
+        return map.get(result).id();
     }
 
 
     /**
      * For Project Part III (gold points)
      * In linear time, collect all the names of OSM locations that prefix-match the query string.
-     * @param prefix Prefix string to be searched for. Could be any case, with our without
+     * @param prefix Prefix string to be searched for. Could be any case, with or without
      *               punctuation.
      * @return A <code>List</code> of the full names of locations whose cleaned name matches the
      * cleaned <code>prefix</code>.
