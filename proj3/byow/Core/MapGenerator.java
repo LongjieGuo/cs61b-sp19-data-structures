@@ -15,7 +15,7 @@ public class MapGenerator {
     public TETile[][] generate(int seed) {
         Random r = new Random(seed);
 
-        width = RandomUtils.uniform(r, 40, 120);
+        width = RandomUtils.uniform(r, 40, 100);
         height = RandomUtils.uniform(r, 20, 50);
 
         TETile[][] teTiles = new TETile[width][height];
@@ -84,45 +84,53 @@ public class MapGenerator {
         }
     }
 
-    private static void addHorizontalHallway(TETile[][] teTiles, Position p1, Position p2) {
-        if (p1.getX() != p2.getX()) {
-            int upper = Math.max(p1.getY(), p2.getY());
-            int lower = Math.min(p1.getY(), p2.getY());
-            int left = Math.min(p1.getX(), p2.getX());
-            int right = Math.max(p1.getX(), p2.getX());
+    private static void connectTwoPointsUsingHallway(TETile[][] teTiles, Position p1, Position p2) {
+        int upper = Math.max(p1.getY(), p2.getY());
+        int lower = Math.min(p1.getY(), p2.getY());
+        int left = Math.min(p1.getX(), p2.getX());
+        int right = Math.max(p1.getX(), p2.getX());
 
-            for (int i = left; i <= right; i++) {
-                teTiles[i][upper] = Tileset.FLOOR;
-                //teTiles[i][lower] = Tileset.FLOOR;
-            }
-        }
-    }
-
-    private static void addVerticalHallway(TETile[][] teTiles, Position p1, Position p2) {
-        if (p1.getX() != p2.getX()) {
-            int upper = Math.max(p1.getY(), p2.getY());
-            int lower = Math.min(p1.getY(), p2.getY());
-            int left = Math.min(p1.getX(), p2.getX());
-            int right = Math.max(p1.getX(), p2.getX());
-
+        if (left == right) {
             for (int i = lower; i <= upper; i++) {
                 teTiles[right][i] = Tileset.FLOOR;
-                //teTiles[left][i] = Tileset.FLOOR;
+            }
+        } else if (lower == upper) {
+            for (int i = left; i <= right; i++) {
+                teTiles[i][upper] = Tileset.FLOOR;
+            }
+        } else {
+            for (int i = left; i <= right; i++) {
+                teTiles[i][upper] = Tileset.FLOOR;
+            }
+            Position end = new Position(right, upper);
+            if (end.getY() == p2.getY() && end.getX() == p2.getX()) {
+                connectTwoPointsUsingHallway(teTiles, p1, new Position(left, p2.getY()));
+            } else if (end.getY() == p1.getY() && end.getX() == p1.getX()) {
+                connectTwoPointsUsingHallway(teTiles, p2, new Position(left, p1.getY()));
+            } else {
+                if (upper == p1.getY()) {
+                    connectTwoPointsUsingHallway(teTiles, p2, new Position(right, upper));
+                } else {
+                    connectTwoPointsUsingHallway(teTiles, p1, new Position(right, upper));
+                }
             }
         }
-    }
-
-    private static void connectTwoPointsWithHallway(TETile[][] teTiles, Position p1, Position p2) {
-        addHorizontalHallway(teTiles, p1, p2);
-        addVerticalHallway(teTiles, p1, p2);
     }
 
     private static void connectTwoRooms(TETile[][] teTiles, Random random, Room r1, Room r2) {
-        Position p1 = new Position(RandomUtils.uniform(random, r1.getTopLeft().getX(), r1.getBottomRight().getX()),
-                                    RandomUtils.uniform(random, r1.getBottomRight().getY(), r1.getTopLeft().getY()));
-        Position p2 = new Position(RandomUtils.uniform(random, r2.getTopLeft().getX(), r2.getBottomRight().getX()),
-                RandomUtils.uniform(random, r2.getBottomRight().getY(), r2.getTopLeft().getY()));
-        connectTwoPointsWithHallway(teTiles, p1, p2);
+        Position p1 = new Position(RandomUtils.uniform(random, r1.getTopLeft().getX(), r1.getBottomRight().getX() + 1),
+                                    RandomUtils.uniform(random, r1.getBottomRight().getY(), r1.getTopLeft().getY() + 1));
+        Position p2 = new Position(RandomUtils.uniform(random, r2.getTopLeft().getX(), r2.getBottomRight().getX() + 1),
+                RandomUtils.uniform(random, r2.getBottomRight().getY(), r2.getTopLeft().getY() + 1));
+        connectTwoPointsUsingHallway(teTiles, p1, p2);
+    }
+
+    private static void connectAllRooms(TETile[][] teTiles, Random random, ArrayList<Room> rooms) {
+        for (int i = 0; i < rooms.size(); i++) {
+            if (i > 0) {
+                connectTwoRooms(teTiles, random, rooms.get(i - 1), rooms.get(i));
+            }
+        }
     }
 
     /**
@@ -157,21 +165,13 @@ public class MapGenerator {
         }
     }
 
-    private static void connectAllRooms(TETile[][] teTiles, Random random, ArrayList<Room> rooms) {
-        for (int i = 0; i < rooms.size(); i++) {
-            if (i != 0) {
-                connectTwoRooms(teTiles, random, rooms.get(i - 1), rooms.get(i));
-            }
-        }
-    }
-
     public static void main(String[] args) {
         int N = 40;
         MapGenerator mg = new MapGenerator();
         TERenderer ter = new TERenderer();
         TETile[][] t = new TETile[N][N];
         ter.initialize(N, N);
-        Random random = new Random(786);
+        Random random = new Random(35566);
 
         Room r1 = MapGenerator.generateOneRandomRoom(random, 40, 40);
         Room r2 = MapGenerator.generateOneRandomRoom(random, 40, 40);
