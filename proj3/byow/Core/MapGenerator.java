@@ -164,23 +164,4 @@ public class MapGenerator {
             }
         }
     }
-
-    public static void main(String[] args) {
-        int N = 40;
-        MapGenerator mg = new MapGenerator();
-        TERenderer ter = new TERenderer();
-        TETile[][] t = new TETile[N][N];
-        ter.initialize(N, N);
-        Random random = new Random(35566);
-
-        Room r1 = MapGenerator.generateOneRandomRoom(random, 40, 40);
-        Room r2 = MapGenerator.generateOneRandomRoom(random, 40, 40);
-        mg.setAllToWall(t, 40, 40);
-        fillInOneRoom(t, r1);
-        fillInOneRoom(t, r2);
-
-        MapGenerator.connectTwoRooms(t, random, r1, r2);
-        MapGenerator.removeRedundantWalls(t);
-        ter.renderFrame(t);
-    }
 }
